@@ -28,6 +28,7 @@
 #import "SARateViewController.h"
 #import <QuartzCore/QuartzCore.h>
 #import "iRate.h"
+#import "DVAnalyticsManager.h"
 
 @interface SARateViewController ()
 
@@ -37,7 +38,7 @@
 @property (nonatomic, strong) UIButton *star4;
 @property (nonatomic, strong) UIButton *star5;
 
-@property (nonatomic, assign) int mark;
+@property (nonatomic, assign) NSUInteger mark;
 
 @end
 
@@ -179,6 +180,7 @@
 
 
 -(void)hideRaiting{
+    [[DVAnalyticsManager sharedInstance] rateApp:@"Cancel"];
     [iRate sharedInstance].lastReminded = [NSDate date];
     _isShowed = NO;
     [self.view removeFromSuperview];
@@ -216,6 +218,10 @@
     [iRate sharedInstance].ratedThisVersion = YES;
     if (buttonIndex != alertView.cancelButtonIndex){
         [[iRate sharedInstance] openRatingsPageInAppStore];
+        [[DVAnalyticsManager sharedInstance] rateApp:@"AppStore: 5"];
+    }
+    else{
+        [[DVAnalyticsManager sharedInstance] rateApp:@"No AppStore: 5"];
     }
     _isShowed = NO;
     [self.view removeFromSuperview];
@@ -243,7 +249,7 @@
             mailer.modalPresentationStyle = UIModalPresentationPageSheet;
         }
         
-        [self presentModalViewController:mailer animated:YES];
+        [self presentViewController:mailer animated:YES completion:nil];
         
     } else {
         
@@ -264,19 +270,12 @@
     
     switch (result)
     {
-        case MFMailComposeResultCancelled:
-            NSLog(@"Mail cancelled: you cancelled the operation and no email message was queued.");
-            break;
-        case MFMailComposeResultSaved:
-            NSLog(@"Mail saved: you saved the email message in the drafts folder.");
-            break;
         case MFMailComposeResultSent:
             NSLog(@"Mail send: the email message is queued in the outbox. It is ready to send.");
-            break;
-        case MFMailComposeResultFailed:
-            NSLog(@"Mail failed: the email message was not saved or queued, possibly due to an error.");
+            [[DVAnalyticsManager sharedInstance] rateApp:[NSString stringWithFormat:@"Mail: %lu", _mark]];
             break;
         default:
+            [[DVAnalyticsManager sharedInstance] rateApp:[NSString stringWithFormat:@"No Mail: %lu", _mark]];
             NSLog(@"Mail not sent.");
             break;
     }
