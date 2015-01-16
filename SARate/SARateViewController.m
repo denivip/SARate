@@ -195,38 +195,20 @@
     }
     
     if (_mark == 5){
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:_appstoreRaitingAlertTitle
-                                                        message:_appstoreRaitingAlertMessage
-                                                       delegate:self
-                                              cancelButtonTitle:_appstoreRaitingCancel
-                                              otherButtonTitles:_appstoreRaitingButton, nil];
-        [alert show];
+        [[DVAnalyticsManager sharedInstance] rateApp:@"AppStore: 5"];
+        
+        _isShowed = NO;
+        [self.view removeFromSuperview];
+       
+        [iRate sharedInstance].ratedThisVersion = YES;
+        [[iRate sharedInstance] openRatingsPageInAppStore];
         return;
-        
-        
     }
     
     UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:_disadvantagesAlertTitle message:_disadvantagesAlertMessage delegate:nil cancelButtonTitle:_okText otherButtonTitles:nil];
     [alertView show];
     [self sendMail];
     
-}
-
-
-- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
-{
-    [iRate sharedInstance].ratedThisVersion = YES;
-    if (buttonIndex != alertView.cancelButtonIndex){
-        [[iRate sharedInstance] openRatingsPageInAppStore];
-        [[DVAnalyticsManager sharedInstance] rateApp:@"AppStore: 5"];
-    }
-    else{
-        [[DVAnalyticsManager sharedInstance] rateApp:@"No AppStore: 5"];
-    }
-    _isShowed = NO;
-    [self.view removeFromSuperview];
-    
-
 }
 
 
@@ -237,7 +219,6 @@
     {
         
         MFMailComposeViewController *mailer = [[MFMailComposeViewController alloc] init];
-        
         NSArray *toRecipients = [NSArray arrayWithObjects:_email, nil];
         [mailer setToRecipients:toRecipients];
         [mailer setSubject:_emailSubject];
